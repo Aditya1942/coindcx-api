@@ -1,32 +1,35 @@
-import axios from "axios";
-import { createHmac } from "crypto";
+import Axios from "../axiosConfig";
+import { Apis } from "../enum/apis.enum";
+import sign from "../generateSignature";
 
-export class UserInfo {
-    private secret: string;
-    private baseurl: string;
-    constructor(params: { key: string, secret: string, baseurl: string }) {
-        this.secret = params.secret;
-        this.baseurl = params.baseurl;
-    }
+export class User {
+
     public UserInfo = async (): Promise<any> => {
         const timeStamp = Math.floor(Date.now());
         const body = {
             "timestamp": timeStamp
         }
-        const sign = this.sign(body);
-        const url = `${this.baseurl}/api/v1/user/info`;
-        const headers = {
-            "X-API-SIGNATURE": sign
-        };
-        const response = await axios.post(url, body, { headers });
+        const signature = await sign(body);
+        const response = await Axios.post(Apis.UserInfo, body, {
+            headers: {
+                'X-AUTH-SIGNATURE': signature
+
+            }
+        });
+        return response.data;
+    }
+    public UserBalance = async (): Promise<any> => {
+        const timeStamp = Math.floor(Date.now());
+        const body = {
+            "timestamp": timeStamp
+        }
+        const signature = await sign(body);
+        const response = await Axios.post(Apis.UserBalance, body, {
+            headers: {
+                'X-AUTH-SIGNATURE': signature
+            }
+        });
         return response.data;
     }
 
-
-
-    private sign = (body: any): string => {
-        const payload = Buffer.from(JSON.stringify(body)).toString();
-        const signature = createHmac('sha256', this.secret).update(payload).digest('hex')
-        return signature;
-    }
 }
