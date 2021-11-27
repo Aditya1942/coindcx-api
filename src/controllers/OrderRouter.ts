@@ -11,7 +11,21 @@ router.get('/history/trade', async (_: Request, res: Response) => {
   try {
     const order: Orders = new Orders()
     const result = await order.AccountTradeHistory()
-    res.send(result)
+    if (result && result != "")
+      res.send(result)
+    else res.send('No data')
+  } catch (error) {
+    res.status(500).send(error)
+  }
+})
+
+router.post('/new', async (req: Request, res: Response) => {
+  try {
+    const order: Orders = new Orders()
+    const result = await order.newOrder(req.body)
+    if (result && result != "")
+      res.send(result)
+    else res.send('No data')
   } catch (error) {
     res.status(500).send(error)
   }
